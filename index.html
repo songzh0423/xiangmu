@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACS</title>
+<style>
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>智能排课系统</h1>
+            <p class="sub">依据预设课程与你的个性化需求，自动生成一张无时间冲突的课程表</p>
+        </header>
+        <section class="xuanke">
+			<h2><span class="step">1</span>选择选修课</h2>
+			<div id="selectorWrap" class="selector-wrap"></div>
+			<div id="selectError" class="select-error"></div>
+			<details class="bixiuke">
+				<summary>查看必修课</summary>
+				<ul id="bixiuke"></ul>
+			</details>
+		</section>
+		
+		<section class="card">
+		  <h2><span class="step">2</span>设置个性化需求</h2>
+		  <div class="quick-actions">
+		    <button type="button" data-quick="early">不选早八（第1~2节）</button>
+		    <button type="button" data-quick="late">不选晚八（第11~12节）</button>
+		    <button type="button" data-quick="clear">清空全部限制</button>
+		  </div>
+		  <p class="tishici">带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
+          <div class="kebiao">
+		  <table class="sched" id="exclusionGrid"></table>
+		  </div>
+		  </section>
+		  
+		  <div class="paike">
+			  <button type="button" id="scheduleBtn" class="ptiamry">开始排课</button>
+		  </div>
+		  
+		  <section class="card" id="resultCard">
+		      <h2><span class="step">3</span>排课结果</h2>
+		      <div id="status" class="status"></div>
+		      <div class="kebiao">
+		        <table class="sched" id="resultGrid"></table>
+		      </div>
+		      <div id="summary"></div>
+		      <div id="legend"></div>
+		    </section>
+		  
+		    <footer>“及”表示两个时段都占用；“或”表示系统从多个时段中自动选择一个不冲突的时段。</footer>
+		  </div>
+		  
+		  <script>
+		  "use strict";
+		  
+</body>
+</html>
