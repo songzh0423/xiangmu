@@ -4,58 +4,93 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACS</title>
-<style>
+<style type="text/css">
+	* { box-sizing: border-box; }
+	body {
+      margin: 0;   
+      font-family: "Microsoft YaHei", sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      color: #24364b;
+      background: #eef3f9;
+    }
+	h0 {font-size:300%;}
+    h1 {font-size:250%;}
+    h2 {font-size:250%;}
+    h3 {font-size:250%;}
+    h4 {font-size:250%;}
+    p {font-size:150%;}
+    p.margin
+    {margin-right:100px;
+	   margin-left:100px;}
+    .box{display: flex;
+        width: 1280px;
+        margin:auto;}
+    body 
 
 </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>智能排课系统</h1>
-            <p class="sub">依据预设课程与你的个性化需求，自动生成一张无时间冲突的课程表</p>
+        <header style="text-align:center; background-color:#1b5699">
+            <h0>智能排课系统</h0>
+            <p class="sub";">依据预设课程与你的个性化需求，总动生成一张无时间冲突的课程表</p>
         </header>
-        <section class="xuanke">
-			<h2><span class="step">1</span>选择选修课</h2>
-			<div id="selectorWrap" class="selector-wrap"></div>
-			<div id="selectError" class="select-error"></div>
-			<details class="bixiuke">
-				<summary>查看必修课</summary>
-				<ul id="bixiuke"></ul>
-			</details>
+        <section class="first";>
+		   <h1 style="margin-right:100px;margin-left:100px;"><span class="step">1</span>导入课程数据</h1>
+		   <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
+			<p>请将你所在院系的课程数据（Excel表格）导出为CSV文件，并点击下方按钮上传。若你不清楚如何导出，请联系你的院系教务处。</p>
+			<input type="file" id="fileInput" accept=".csv" />
+			<div id="uploadError" class="upload-error"></div>
+		</section>
+
+		<section class="card";>
+			<h2  style="margin-right:100px;margin-left:100px;"><span class="step">2</span>选择选修课</h2>
+			<div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
+			  <div id="selectorWrap" class="selector-wrap"></div>
+			  <div id="selectError" class="select-error"></div>
+			  <details class="bixiuke">
+				  <summary>查看必修课</summary>
+				  <ul id="bixiuke"></ul>
+			  </details>
+			</div>
 		</section>
 		
-		<section class="card">
-		  <h2><span class="step">2</span>设置个性化需求</h2>
-		  <div class="quick-actions">
-		    <button type="button" data-quick="early">不选早八（第1~2节）</button>
-		    <button type="button" data-quick="late">不选晚八（第11~12节）</button>
-		    <button type="button" data-quick="clear">清空全部限制</button>
+		<section class="card";>
+		  <h3 style="margin-right:100px;margin-left:100px;"><span class="step">3</span>设置个性化需求</h3>
+		  <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
+		    <div>
+		      <button type="button" data-quick="early">不选早八（第1~2节）</button>
+		      <button type="button" data-quick="late">不选晚八（第11~12节）</button>
+		      <button type="button" data-quick="clear">清空全部限制</button>
+		    </div>
+		    <p>带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
+            <div class="kebiao">
+		      <table class="sched" id="exclusionGrid"></table>
+		    </div>
+		    <div class="paike">
+		      <button type="button" id="scheduleBtn" class="ptiamry">开始排课</button>
+		    </div>
 		  </div>
-		  <p class="tishici">带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
-          <div class="kebiao">
-		  <table class="sched" id="exclusionGrid"></table>
+		</section>
+		  
+		<section class="card" id="resultCard">
+		  <h4 style="margin-right:100px;margin-left:100px;"><span class="step">4</span>排课结果</h4>
+		  <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
+		    <div id="status" class="status"></div>
+		    <div class="kebiao">
+	          <table class="sched" id="resultGrid"></table>
+		    </div>
+		    <div id="summary"></div>
+		    <div id="legend"></div>
 		  </div>
-		  </section>
+		</section>
 		  
-		  <div class="paike">
-			  <button type="button" id="scheduleBtn" class="ptiamry">开始排课</button>
-		  </div>
+		<footer style="text-align:center">“及”表示两个时段都占用；“或”表示系统从多个时段中自动选择一个不冲突的时段。</footer>
+	</div>
 		  
-		  <section class="card" id="resultCard">
-		      <h2><span class="step">3</span>排课结果</h2>
-		      <div id="status" class="status"></div>
-		      <div class="kebiao">
-		        <table class="sched" id="resultGrid"></table>
-		      </div>
-		      <div id="summary"></div>
-		      <div id="legend"></div>
-		    </section>
-		  
-		    <footer>“及”表示两个时段都占用；“或”表示系统从多个时段中自动选择一个不冲突的时段。</footer>
-		  </div>
-		  
-		  <script>
+		<script>
 		  "use strict";
-		  
+	    </script>  
 </body>
 </html>
