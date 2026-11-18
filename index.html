@@ -27,13 +27,106 @@
         width: 1280px;
         margin:auto;}
     body 
+	/* 必修课锁定格 */
+.sched td.locked {
+  background: #e8f1fb;
+  color: #1b5699;
+  font-weight: 600;
+  cursor: not-allowed;
+  border-color: #b9d2ee;
+}
 
+/* 打叉（排除）格 */
+.sched td.excluded {
+  background: #fdecec;
+  border-color: #f5c2c0;
+  color: #d63031;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* 整列/整行关闭时表头变灰 */
+.sched th.col-off,
+.sched th.row-off {
+  background: #f0f0f0;
+  color: #999;
+  text-decoration: line-through;
+}
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;   /* 链接整体在导航栏内水平居中 */
+  gap: 80px;
+  padding: 14px 24px;
+  background: #75afe5;
+  border-bottom: 1px solid #ddd;
+}
+
+/* ===== 导航栏链接：去下划线、圆角矩形、悬停高亮 ===== */
+.nav a {
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav a:hover {
+  background-color: #ffffff;
+  color: #1b5699;
+}
+
+/* ===== 课程表：横线竖线 + 列宽合理化 ===== */
+.sched {
+  width: 100%;
+  table-layout: fixed;      /* 固定布局：列宽按第一行分配，7 个日期列均分剩余宽度 */
+  border-collapse: collapse;/* 相邻边框合并成一条线，避免出现双线 */
+}
+
+.sched th,
+.sched td {
+  border: 1px solid #c9d4e3;
+  text-align: center;
+  padding: 8px 6px;
+}
+
+.sched th:first-child,
+.sched td:first-child {
+  width: 84px;              /* “节次”列窄一点，日期列均分剩下的宽度 */
+}
+
+.sched th {
+  background: #eef4fb;
+  color: #24364b;
+  font-weight: 600;
+}
+
+.sched td {
+  height: 38px;             /* 单元格最小高度，让网格看起来像课程表 */
+}
+
+/* ===== 设置个性化需求：缩小提示文字 ===== */
+.hint {
+  font-size: 14px;
+  color: #5a6b80;
+}
 </style>
 </head>
 <body>
-    <div class="container">
-        <header style="text-align:center; background-color:#1b5699">
-            <h0>智能排课系统</h0>
+  <nav class="nav">
+    <a href="#intro">导入课程数据</a>
+    <a href="#usage">选择选修课</a>
+    <a href="#result">设置个性化需求</a>
+    <a href="#resultCard">排课结果</a>
+
+  </nav>
+
+    <div class="container" style="border-radius:16px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06);background-color:#ffffff;margin:32px auto;padding:32px;max-width:1280px;"id="intro">
+        <header style="text-align:center; background-color:#9de311;border-radius:16px;padding:32px;">
+            <h1>智能排课系统</h1>
             <p class="sub";">依据预设课程与你的个性化需求，总动生成一张无时间冲突的课程表</p>
         </header>
         <section class="first";>
@@ -44,7 +137,7 @@
 			<div id="uploadError" class="upload-error"></div>
 		</section>
 
-		<section class="card";>
+		<section class="card";id="usage">
 			<h2  style="margin-right:100px;margin-left:100px;"><span class="step">2</span>选择选修课</h2>
 			<div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
 			  <div id="selectorWrap" class="selector-wrap"></div>
@@ -56,15 +149,15 @@
 			</div>
 		</section>
 		
-		<section class="card";>
+		<section class="card";id="result">
 		  <h3 style="margin-right:100px;margin-left:100px;"><span class="step">3</span>设置个性化需求</h3>
 		  <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
+		    <p class="hint">带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
 		    <div>
 		      <button type="button" data-quick="early">不选早八（第1~2节）</button>
 		      <button type="button" data-quick="late">不选晚八（第11~12节）</button>
 		      <button type="button" data-quick="clear">清空全部限制</button>
 		    </div>
-		    <p>带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
             <div class="kebiao">
 		      <table class="sched" id="exclusionGrid"></table>
 		    </div>
@@ -91,6 +184,117 @@
 		  
 		<script>
 		  "use strict";
+		  "use strict";
+
+/* ========== 配置 ========== */
+const DAYS   = ["周一","周二","周三","周四","周五","周六","周日"];
+const PERIODS = 12; // 第1~12节
+
+/* ========== 建表函数 ========== */
+function buildScheduleTable(tableEl, opts = {}) {
+  const { clickable = true } = opts;
+
+  tableEl.innerHTML = "";
+
+  /* --- 表头 --- */
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+
+  // 左上角：节次 + 星期
+  const corner = document.createElement("th");
+  corner.textContent = "节次";
+  headRow.appendChild(corner);
+
+  // 周X 表头（点击可整日不排课）
+  DAYS.forEach((day, dayIdx) => {
+    const th = document.createElement("th");
+    th.textContent = day;
+    th.dataset.day = dayIdx;
+    th.title = `点击让${day}整日不排课`;
+    if (clickable) {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => toggleColumn(th, dayIdx));
+    }
+    headRow.appendChild(th);
+  });
+
+  thead.appendChild(headRow);
+  tableEl.appendChild(thead);
+
+  /* --- 表体 --- */
+  const tbody = document.createElement("tbody");
+
+  for (let p = 1; p <= PERIODS; p++) {
+    const tr = document.createElement("tr");
+
+    // 左侧：第X节（点击让该节全周不排课）
+    const th = document.createElement("th");
+    th.textContent = `第${p}节`;
+    th.dataset.period = p;
+    th.title = `点击让第${p}节（周一至周五）都不排课`;
+    if (clickable) {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => toggleRow(th, p));
+    }
+    tr.appendChild(th);
+
+    // 7 个空白格
+    DAYS.forEach((_, dayIdx) => {
+      const td = document.createElement("td");
+      td.dataset.day = dayIdx;
+      td.dataset.period = p;
+      if (clickable) {
+        td.addEventListener("click", () => toggleCell(td));
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  }
+
+  tableEl.appendChild(tbody);
+}
+
+/* ========== 单元格交互（先做占位，逻辑你按需补） ========== */
+
+// 单格：点一下打叉，再点取消
+function toggleCell(td) {
+  if (td.classList.contains("locked")) return; // 必修课锁定，不可操作
+  td.classList.toggle("excluded");
+  td.textContent = td.classList.contains("excluded") ? "✕" : "";
+}
+
+// 整列（某一天）
+function toggleColumn(th, dayIdx) {
+  const table = th.closest("table");
+  const cells = table.querySelectorAll(`tbody td[data-day="${dayIdx}"]`);
+  const anyOn = [...cells].some(td => td.classList.contains("excluded") && !td.classList.contains("locked"));
+  cells.forEach(td => {
+    if (td.classList.contains("locked")) return;
+    td.classList.toggle("excluded", !anyOn);
+    td.textContent = !anyOn ? "✕" : "";
+  });
+  th.classList.toggle("col-off", !anyOn);
+}
+
+// 整行（某一节）
+function toggleRow(th, period) {
+  const table = th.closest("table");
+  const cells = table.querySelectorAll(`tbody td[data-period="${period}"]`);
+  const anyOn = [...cells].some(td => td.classList.contains("excluded") && !td.classList.contains("locked"));
+  cells.forEach(td => {
+    if (td.classList.contains("locked")) return;
+    td.classList.toggle("excluded", !anyOn);
+    td.textContent = !anyOn ? "✕" : "";
+  });
+  th.classList.toggle("row-off", !anyOn);
+}
+
+/* ========== 初始化两张表 ========== */
+document.addEventListener("DOMContentLoaded", () => {
+  buildScheduleTable(document.getElementById("exclusionGrid"), { clickable: true });
+  buildScheduleTable(document.getElementById("resultGrid"),   { clickable: false });
+});
 	    </script>  
 </body>
 </html>
