@@ -7,14 +7,13 @@
 <style type="text/css">
 	* { box-sizing: border-box; }
 	body {
-      margin: 0;   
+      margin: 0;
       font-family: "Microsoft YaHei", sans-serif;
       font-size: 17px;
       line-height: 1.7;
       color: #24364b;
       background: #eef3f9;
     }
-	h0 {font-size:300%;}
     h1 {font-size:250%;}
     h2 {font-size:250%;}
     h3 {font-size:250%;}
@@ -26,8 +25,71 @@
     .box{display: flex;
         width: 1280px;
         margin:auto;}
-    body 
-	/* 必修课锁定格 */
+
+/* ===== 步骤序号 ===== */
+.step {
+  display: inline-block;
+  min-width: 34px; height: 34px; line-height: 34px;
+  text-align: center; border-radius: 50%;
+  background: #1b5699; color: #fff; font-size: 16px;
+  margin-right: 12px; vertical-align: middle;
+}
+
+/* ===== 按钮 ===== */
+button {
+  font: inherit; cursor: pointer;
+  padding: 8px 16px;
+  border: 1px solid #b9c9dc; border-radius: 8px;
+  background: #fff; color: #24364b;
+  transition: background-color .2s, border-color .2s;
+}
+button:hover { background: #eaf2fc; border-color: #75afe5; }
+button.btn-primary {
+  background: #1b5699; border-color: #1b5699; color: #fff;
+  font-weight: 600; padding: 10px 28px; font-size: 18px;
+}
+button.btn-primary:hover { background: #15467d; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; align-items: center; }
+
+/* ===== 课程选择 ===== */
+.selector-wrap { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.course-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 14px; border: 1px solid #dbe4ef; border-radius: 8px;
+  background: #fff; cursor: pointer;
+}
+.course-item:hover { border-color: #75afe5; }
+.course-item input { margin-top: 7px; }
+.course-item > span { display: flex; flex-direction: column; }
+.course-name { font-weight: 600; }
+.course-meta { font-size: 13px; color: #5a6b80; }
+#bixiuke { margin: 10px 0 0 22px; font-size: 15px; }
+#bixiuke li { margin: 4px 0; }
+
+/* ===== 提示与状态 ===== */
+.hint { font-size: 14px; color: #5a6b80; }
+.format-hint {
+  background: #f7fafc; border: 1px dashed #c9d4e3; border-radius: 8px;
+  padding: 10px 14px; font-size: 13px; line-height: 1.9; color: #5a6b80;
+}
+.format-hint code { font-family: monospace; background: #eef4fb; padding: 1px 5px; border-radius: 3px; }
+.error { color: #c0392b; font-size: 14px; margin-top: 8px; }
+.status {
+  font-size: 15px; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+  background: #eef4fb; border-left: 4px solid #1b5699;
+}
+.status.error   { background: #fdecec; border-color: #d63031; color: #a11; }
+.status.success { background: #eaf7ee; border-color: #2e9e5b; color: #1d6b3d; }
+.summary { margin-top: 16px; font-size: 14px; }
+.summary table { border-collapse: collapse; width: 100%; }
+.summary th, .summary td { border: 1px solid #dbe4ef; padding: 6px 10px; text-align: left; }
+.summary th { background: #eef4fb; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: 13px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #c9d4e3; }
+
+/* ===== 课程表 ===== */
+/* 必修课锁定格 */
 .sched td.locked {
   background: #e8f1fb;
   color: #1b5699;
@@ -52,6 +114,9 @@
   color: #999;
   text-decoration: line-through;
 }
+.sched td.filled { font-size: 13px; font-weight: 600; }
+.sched td.fixed-cell { border: 2px solid #1b5699; }
+.sched td.excluded-mark { background: #f7f7f7; color: #bbb; }
 .nav {
   position: sticky;
   top: 0;
@@ -107,12 +172,6 @@
 .sched td {
   height: 38px;             /* 单元格最小高度，让网格看起来像课程表 */
 }
-
-/* ===== 设置个性化需求：缩小提示文字 ===== */
-.hint {
-  font-size: 14px;
-  color: #5a6b80;
-}
 </style>
 </head>
 <body>
@@ -121,39 +180,46 @@
     <a href="#usage">选择选修课</a>
     <a href="#result">设置个性化需求</a>
     <a href="#resultCard">排课结果</a>
-
   </nav>
 
-    <div class="container" style="border-radius:16px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06);background-color:#ffffff;margin:32px auto;padding:32px;max-width:1280px;"id="intro">
+    <div class="container" style="border-radius:16px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06);background-color:#ffffff;margin:32px auto;padding:32px;max-width:1280px;" id="intro">
         <header style="text-align:center; background-color:#9de311;border-radius:16px;padding:32px;">
             <h1>智能排课系统</h1>
-            <p class="sub";">依据预设课程与你的个性化需求，总动生成一张无时间冲突的课程表</p>
+            <p class="sub">依据预设课程与你的个性化需求，自动生成一张无时间冲突的课程表</p>
         </header>
-        <section class="first";>
+        <section class="first">
 		   <h1 style="margin-right:100px;margin-left:100px;"><span class="step">1</span>导入课程数据</h1>
 		   <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
 			<p>请将你所在院系的课程数据（Excel表格）导出为CSV文件，并点击下方按钮上传。若你不清楚如何导出，请联系你的院系教务处。</p>
-			<input type="file" id="fileInput" accept=".csv" />
-			<div id="uploadError" class="upload-error"></div>
+			<div class="toolbar">
+			  <input type="file" id="fileInput" accept=".csv" />
+			  <button type="button" id="exampleBtn">载入示例数据</button>
+			</div>
+			<div class="format-hint">
+			  CSV 格式说明：第一行为表头，列名可用 <code>课程名</code>、<code>类型</code>（必修/选修）、<code>时段</code>、<code>学分</code>、<code>教师</code>（后三列可省略；无表头时按此顺序读取）。<br>
+			  时段写法：<code>周一1-2</code> 表示周一第 1~2 节；<code>及</code> 表示两个时段都被占用；<code>或</code> 表示系统从多个候选时段中自动挑一个不冲突的。<br>
+			  示例行：<code>高等数学,必修,周一1-2及周三3-4,5,王老师</code>　/　<code>大学英语,必修,周二1-2或周四3-4,2,赵老师</code>
+			</div>
+			<div id="uploadError" class="error"></div>
 		</section>
 
-		<section class="card";id="usage">
-			<h2  style="margin-right:100px;margin-left:100px;"><span class="step">2</span>选择选修课</h2>
+		<section class="card" id="usage">
+			<h2 style="margin-right:100px;margin-left:100px;"><span class="step">2</span>选择选修课</h2>
 			<div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
 			  <div id="selectorWrap" class="selector-wrap"></div>
-			  <div id="selectError" class="select-error"></div>
-			  <details class="bixiuke">
+			  <div id="selectError" class="hint"></div>
+			  <details class="bixiuke" style="margin-top:18px;">
 				  <summary>查看必修课</summary>
 				  <ul id="bixiuke"></ul>
 			  </details>
 			</div>
 		</section>
-		
-		<section class="card";id="result">
+
+		<section class="card" id="result">
 		  <h3 style="margin-right:100px;margin-left:100px;"><span class="step">3</span>设置个性化需求</h3>
 		  <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
-		    <p class="hint">带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该时段（周一至周五）都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定（不可选择时段）的必修课已经呈现在本预览课程表上，而可选时段的必修课将根据选课要求安排。</p>
-		    <div>
+		    <p class="hint">带颜色的格子为时段确定的必修课，不可打叉；点击空白时段方框可添加 / 取消红色大叉（该时段所有课程都不得占用）；点击表头“周X”可整日不排课、点击左侧“第X节”可让该节整周都不排课，以上操作都会自动跳过已锁定的必修课格子。注：时段确定的必修课已经呈现在本预览课程表上，而可选时段的必修课将由系统自动安排。</p>
+		    <div class="toolbar">
 		      <button type="button" data-quick="early">不选早八（第1~2节）</button>
 		      <button type="button" data-quick="late">不选晚八（第11~12节）</button>
 		      <button type="button" data-quick="clear">清空全部限制</button>
@@ -161,12 +227,12 @@
             <div class="kebiao">
 		      <table class="sched" id="exclusionGrid"></table>
 		    </div>
-		    <div class="paike">
-		      <button type="button" id="scheduleBtn" class="ptiamry">开始排课</button>
+		    <div class="paike" style="text-align:center;margin-top:20px;">
+		      <button type="button" id="scheduleBtn" class="btn-primary">开始排课</button>
 		    </div>
 		  </div>
 		</section>
-		  
+
 		<section class="card" id="resultCard">
 		  <h4 style="margin-right:100px;margin-left:100px;"><span class="step">4</span>排课结果</h4>
 		  <div style="max-width: 1000px;margin: 32px auto ;padding: 36px;background: hsla(0, 11%, 98%, 0.884); border-radius: 14px;box-shadow: 0 4px 20px rgba(36, 54, 75, .06)">
@@ -174,38 +240,171 @@
 		    <div class="kebiao">
 	          <table class="sched" id="resultGrid"></table>
 		    </div>
-		    <div id="summary"></div>
-		    <div id="legend"></div>
+		    <div id="summary" class="summary"></div>
+		    <div id="legend" class="legend"></div>
 		  </div>
 		</section>
-		  
+
 		<footer style="text-align:center">“及”表示两个时段都占用；“或”表示系统从多个时段中自动选择一个不冲突的时段。</footer>
 	</div>
-		  
-		<script>
-		  "use strict";
-		  "use strict";
+
+<script>
+"use strict";
 
 /* ========== 配置 ========== */
-const DAYS   = ["周一","周二","周三","周四","周五","周六","周日"];
+const DAYS = ["周一","周二","周三","周四","周五","周六","周日"];
+const DAY_INDEX = { "一":0, "二":1, "三":2, "四":3, "五":4, "六":5, "日":6, "天":6 };
 const PERIODS = 12; // 第1~12节
+const PALETTE = ["#dbeafe","#dcfce7","#fef3c7","#fce7f3","#ede9fe","#ccfbf1","#ffe4e6","#e0e7ff","#e2e8f0","#fde68a"];
+
+/* ========== 全局状态 ========== */
+let courses = [];       // 课程数据
+
+/* ========== 示例 CSV（用于体验完整流程） ========== */
+const SAMPLE_CSV = [
+  "课程名,类型,时段,学分,教师",
+  "高等数学,必修,周一1-2及周三3-4,5,王老师",
+  "线性代数,必修,周五3-4,3,李老师",
+  "大学英语,必修,周二1-2或周四3-4,2,赵老师",
+  "数据结构,选修,周二3-4,4,陈老师",
+  "操作系统,选修,周一5-6或周三5-6,3,刘老师",
+  "计算机网络,选修,周四5-6或周五5-6,3,孙老师",
+  "人工智能,选修,周二7-8或周四7-8,2,周老师",
+  "数据库原理,选修,周三7-8及周五7-8,3,吴老师",
+  "编译原理,选修,周一9-10或周三9-10,3,郑老师",
+  "体育,选修,周五9-10,1,何老师"
+].join("\n");
+
+/* ========== 工具函数 ========== */
+const cellKey = (d, p) => d + "-" + p;
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+}
+
+/* 展开一个时段方案，得到它占用的所有格子 */
+function expandOption(option) {
+  const cells = [];
+  option.forEach(g => {
+    for (let p = g.start; p <= g.end; p++) cells.push(cellKey(g.day, p));
+  });
+  return cells;
+}
+
+/* 把一个时段方案转成可读文字 */
+function describeOption(option) {
+  return option.map(g => `${DAYS[g.day]}第${g.start}${g.end > g.start ? "-" + g.end : ""}节`).join(" 及 ");
+}
+
+/* ========== CSV 解析（支持引号、BOM、GBK） ========== */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      row.push(field); field = "";
+    } else if (ch === "\n") {
+      row.push(field); rows.push(row); row = []; field = "";
+    } else if (ch !== "\r") {
+      field += ch;
+    }
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+
+/* 解析 "周X a-b" 形式，返回 [{day,start,end}, ...] */
+function parseSlotGroups(str) {
+  const groups = [];
+  const re = /周\s*([一二三四五六日天1-7])\s*第?\s*(\d{1,2})\s*(?:[-~—－至到]\s*(\d{1,2}))?\s*节?/g;
+  let m;
+  while ((m = re.exec(str)) !== null) {
+    let d = DAY_INDEX[m[1]];
+    if (d === undefined && /^[1-7]$/.test(m[1])) d = parseInt(m[1], 10) - 1;
+    if (d === undefined || d < 0 || d > 6) continue;
+    let start = Math.max(1, Math.min(PERIODS, parseInt(m[2], 10)));
+    let end = m[3] ? Math.max(1, Math.min(PERIODS, parseInt(m[3], 10))) : start;
+    if (end < start) [start, end] = [end, start];
+    groups.push({ day: d, start, end });
+  }
+  return groups;
+}
+
+/* "或" 分方案，"及" 分同一方案内的多个时段 */
+function parseTime(str) {
+  return String(str)
+    .split(/或|\|/)
+    .map(part => part.split(/及|\+|&/).flatMap(parseSlotGroups))
+    .filter(option => option.length > 0);
+}
+
+/* 把 CSV 行转成课程数据 */
+function buildCourses(rows) {
+  const errors = [];
+  const header = rows[0].map(h => h.trim());
+  const aliases = {
+    name:    ["课程名","课程名称","课程","name","course"],
+    type:    ["类型","课程类型","性质","必修选修","type"],
+    time:    ["时段","上课时间","时间","节次","time","slot"],
+    credit:  ["学分","credit"],
+    teacher: ["教师","老师","任课教师","teacher"]
+  };
+  const findCol = keys => header.findIndex(h => keys.some(k => h.toLowerCase() === k.toLowerCase()));
+  let col = {
+    name: findCol(aliases.name), type: findCol(aliases.type),
+    time: findCol(aliases.time), credit: findCol(aliases.credit), teacher: findCol(aliases.teacher)
+  };
+  let dataRows;
+  if (col.name >= 0 && col.time >= 0) {
+    dataRows = rows.slice(1);
+  } else {
+    // 无表头：按 课程名,类型,时段,学分,教师 的顺序读
+    col = { name:0, type:1, time:2, credit:3, teacher:4 };
+    dataRows = rows;
+  }
+  const get = (r, k) => col[k] >= 0 && col[k] < r.length ? String(r[col[k]]).trim() : "";
+
+  dataRows.forEach((r, i) => {
+    const name = get(r, "name");
+    if (!name) { errors.push(`第 ${i + 1} 行缺少课程名，已跳过`); return; }
+    const timeRaw = get(r, "time");
+    const options = parseTime(timeRaw);
+    if (!options.length) { errors.push(`「${name}」的时段无法识别：${timeRaw}`); return; }
+    const typeRaw = get(r, "type");
+    const isRequired = /必修|必选|required/i.test(typeRaw);
+    courses.push({
+      id: "c-" + courses.length,
+      name,
+      type: isRequired ? "required" : "elective",
+      credit: get(r, "credit"),
+      teacher: get(r, "teacher"),
+      timeRaw,
+      options,
+      fixed: isRequired && options.length === 1   // 时段唯一且为必修 → 锁定格
+    });
+  });
+  return errors;
+}
 
 /* ========== 建表函数 ========== */
 function buildScheduleTable(tableEl, opts = {}) {
   const { clickable = true } = opts;
-
   tableEl.innerHTML = "";
 
-  /* --- 表头 --- */
   const thead = document.createElement("thead");
   const headRow = document.createElement("tr");
-
-  // 左上角：节次 + 星期
   const corner = document.createElement("th");
   corner.textContent = "节次";
   headRow.appendChild(corner);
 
-  // 周X 表头（点击可整日不排课）
   DAYS.forEach((day, dayIdx) => {
     const th = document.createElement("th");
     th.textContent = day;
@@ -217,84 +416,369 @@ function buildScheduleTable(tableEl, opts = {}) {
     }
     headRow.appendChild(th);
   });
-
   thead.appendChild(headRow);
   tableEl.appendChild(thead);
 
-  /* --- 表体 --- */
   const tbody = document.createElement("tbody");
-
   for (let p = 1; p <= PERIODS; p++) {
     const tr = document.createElement("tr");
-
-    // 左侧：第X节（点击让该节全周不排课）
     const th = document.createElement("th");
     th.textContent = `第${p}节`;
     th.dataset.period = p;
-    th.title = `点击让第${p}节（周一至周五）都不排课`;
+    th.title = `点击让第${p}节整周都不排课`;
     if (clickable) {
       th.style.cursor = "pointer";
       th.addEventListener("click", () => toggleRow(th, p));
     }
     tr.appendChild(th);
 
-    // 7 个空白格
     DAYS.forEach((_, dayIdx) => {
       const td = document.createElement("td");
       td.dataset.day = dayIdx;
       td.dataset.period = p;
-      if (clickable) {
-        td.addEventListener("click", () => toggleCell(td));
-      }
+      if (clickable) td.addEventListener("click", () => toggleCell(td));
       tr.appendChild(td);
     });
-
     tbody.appendChild(tr);
   }
-
   tableEl.appendChild(tbody);
 }
 
-/* ========== 单元格交互（先做占位，逻辑你按需补） ========== */
+/* ========== 排除格子的通用操作 ========== */
+function setExcluded(td, on) {
+  if (td.classList.contains("locked")) return false;  // 固定必修课不可打叉
+  td.classList.toggle("excluded", on);
+  td.textContent = on ? "✕" : "";
+  return true;
+}
 
-// 单格：点一下打叉，再点取消
+function allCellsOff(cells) {
+  const free = [...cells].filter(td => !td.classList.contains("locked"));
+  return free.length > 0 && free.every(td => td.classList.contains("excluded"));
+}
+
+function refreshHeaderStates() {
+  const grid = document.getElementById("exclusionGrid");
+  grid.querySelectorAll("thead th[data-day]").forEach(th => {
+    const cells = grid.querySelectorAll(`tbody td[data-day="${th.dataset.day}"]`);
+    th.classList.toggle("col-off", allCellsOff(cells));
+  });
+  grid.querySelectorAll("tbody th[data-period]").forEach(th => {
+    const cells = grid.querySelectorAll(`tbody td[data-period="${th.dataset.period}"]`);
+    th.classList.toggle("row-off", allCellsOff(cells));
+  });
+}
+
 function toggleCell(td) {
-  if (td.classList.contains("locked")) return; // 必修课锁定，不可操作
-  td.classList.toggle("excluded");
-  td.textContent = td.classList.contains("excluded") ? "✕" : "";
+  setExcluded(td, !td.classList.contains("excluded"));
+  refreshHeaderStates();
 }
 
-// 整列（某一天）
 function toggleColumn(th, dayIdx) {
-  const table = th.closest("table");
-  const cells = table.querySelectorAll(`tbody td[data-day="${dayIdx}"]`);
-  const anyOn = [...cells].some(td => td.classList.contains("excluded") && !td.classList.contains("locked"));
-  cells.forEach(td => {
-    if (td.classList.contains("locked")) return;
-    td.classList.toggle("excluded", !anyOn);
-    td.textContent = !anyOn ? "✕" : "";
-  });
-  th.classList.toggle("col-off", !anyOn);
+  const grid = document.getElementById("exclusionGrid");
+  const cells = [...grid.querySelectorAll(`tbody td[data-day="${dayIdx}"]`)];
+  const turnOn = !allCellsOff(cells);
+  cells.forEach(td => setExcluded(td, turnOn));
+  refreshHeaderStates();
 }
 
-// 整行（某一节）
 function toggleRow(th, period) {
-  const table = th.closest("table");
-  const cells = table.querySelectorAll(`tbody td[data-period="${period}"]`);
-  const anyOn = [...cells].some(td => td.classList.contains("excluded") && !td.classList.contains("locked"));
-  cells.forEach(td => {
-    if (td.classList.contains("locked")) return;
-    td.classList.toggle("excluded", !anyOn);
-    td.textContent = !anyOn ? "✕" : "";
-  });
-  th.classList.toggle("row-off", !anyOn);
+  const grid = document.getElementById("exclusionGrid");
+  const cells = [...grid.querySelectorAll(`tbody td[data-period="${period}"]`)];
+  const turnOn = !allCellsOff(cells);
+  cells.forEach(td => setExcluded(td, turnOn));
+  refreshHeaderStates();
 }
 
-/* ========== 初始化两张表 ========== */
+/* ========== 三个快捷限制按钮 ========== */
+function handleQuick(kind) {
+  const grid = document.getElementById("exclusionGrid");
+  if (kind === "clear") {
+    grid.querySelectorAll("tbody td").forEach(td => setExcluded(td, false));
+    refreshHeaderStates();
+    setStatus("已清空全部限制（固定必修课格子不受影响）。", "info");
+    return;
+  }
+  const periods = kind === "early" ? [1, 2] : [11, 12];
+  const cells = [...grid.querySelectorAll("tbody td")].filter(td => periods.includes(+td.dataset.period));
+  const free = cells.filter(td => !td.classList.contains("locked"));
+  const turnOn = !(free.length > 0 && free.every(td => td.classList.contains("excluded")));
+  cells.forEach(td => setExcluded(td, turnOn));
+  refreshHeaderStates();
+  const label = kind === "early" ? "第1~2节" : "第11~12节";
+  setStatus(turnOn ? `已设置：${label}不排课（已跳过锁定的必修课）。` : `已取消「${label}不排课」限制。`, "info");
+}
+
+/* ========== 数据载入与界面渲染 ========== */
+function showError(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = text ? "error" : "";
+}
+
+function setStatus(text, level = "info") {
+  const el = document.getElementById("status");
+  el.textContent = text;
+  el.className = "status" + (level === "error" ? " error" : level === "success" ? " success" : "");
+}
+
+function renderSelector() {
+  const wrap = document.getElementById("selectorWrap");
+  const electives = courses.filter(c => c.type === "elective");
+  wrap.innerHTML = electives.length
+    ? electives.map(c => `
+        <label class="course-item">
+          <input type="checkbox" class="course-check" value="${c.id}" checked>
+          <span>
+            <span class="course-name">${escapeHtml(c.name)}</span>
+            <span class="course-meta">${c.credit ? escapeHtml(c.credit) + " 学分 · " : ""}${escapeHtml(c.timeRaw)}${c.teacher ? " · " + escapeHtml(c.teacher) : ""}</span>
+          </span>
+        </label>`).join("")
+    : '<p class="hint">尚未载入课程数据。上传 CSV 或点击「载入示例数据」后，可在此勾选选修课。</p>';
+
+  const required = courses.filter(c => c.type === "required");
+  document.getElementById("bixiuke").innerHTML = required.length
+    ? required.map(c => `<li>${escapeHtml(c.name)} <span class="course-meta">${escapeHtml(c.timeRaw)}${c.fixed ? "（固定时段）" : "（系统自动选择时段）"}</span></li>`).join("")
+    : "<li>暂无必修课</li>";
+}
+
+/* 把固定时段必修课写进预览表并锁定 */
+function applyLockedCells() {
+  const grid = document.getElementById("exclusionGrid");
+  const conflicts = [];
+  courses.filter(c => c.fixed).forEach(c => {
+    expandOption(c.options[0]).forEach(k => {
+      const [d, p] = k.split("-").map(Number);
+      const td = grid.querySelector(`td[data-day="${d}"][data-period="${p}"]`);
+      if (!td) return;
+      if (td.classList.contains("locked")) {
+        conflicts.push(`${DAYS[d]}第${p}节「${c.name}」与其他固定必修课重叠`);
+      } else {
+        td.classList.add("locked");
+        td.classList.remove("excluded");
+        td.textContent = c.name;
+        td.title = `固定必修课：${c.name}（不可打叉）`;
+      }
+    });
+  });
+  return conflicts;
+}
+
+function clearResult() {
+  buildScheduleTable(document.getElementById("resultGrid"), { clickable: false });
+  document.getElementById("summary").innerHTML = "";
+  document.getElementById("legend").innerHTML = "";
+}
+
+function loadCoursesFromCSV(text, label) {
+  courses = [];
+  const rows = parseCSV(text.replace(/^\uFEFF/, ""));
+  if (!rows.length) { showError("uploadError", "文件为空或未读到有效内容。"); return; }
+  const errs = buildCourses(rows);
+  if (!courses.length) {
+    showError("uploadError", errs.length ? errs.join("；") : "未能解析出任何课程，请检查 CSV 格式。");
+    return;
+  }
+  buildScheduleTable(document.getElementById("exclusionGrid"), { clickable: true });
+  const conflicts = applyLockedCells();
+  renderSelector();
+  clearResult();
+  showError("uploadError", "");
+  document.getElementById("selectError").textContent = "";
+
+  const reqCount = courses.filter(c => c.type === "required").length;
+  const eleCount = courses.length - reqCount;
+  const fixedCount = courses.filter(c => c.fixed).length;
+  let msg = `已载入${label}：共 ${courses.length} 门课（必修 ${reqCount}、选修 ${eleCount}），其中 ${fixedCount} 门固定时段必修课已锁定在预览表中。`;
+  if (errs.length) msg += ` 有 ${errs.length} 行被跳过：${errs.slice(0, 2).join("；")}`;
+  if (conflicts.length) msg += ` 注意：${conflicts.join("；")}`;
+  setStatus(msg, conflicts.length ? "error" : "info");
+}
+
+async function handleFile(file) {
+  try {
+    const buf = await file.arrayBuffer();
+    let text;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(buf);
+    } catch (e) {
+      try { text = new TextDecoder("gbk").decode(buf); }
+      catch (e2) { text = new TextDecoder("utf-8").decode(buf); }
+    }
+    loadCoursesFromCSV(text, `「${file.name}」`);
+  } catch (e) {
+    showError("uploadError", "读取文件失败：" + e.message);
+  }
+}
+
+/* ========== 排课算法 ========== */
+function getExcludedKeys() {
+  const grid = document.getElementById("exclusionGrid");
+  return new Set([...grid.querySelectorAll("tbody td.excluded")]
+    .map(td => cellKey(+td.dataset.day, +td.dataset.period)));
+}
+
+function selectedElectiveIds() {
+  return new Set([...document.querySelectorAll(".course-check:checked")].map(el => el.value));
+}
+
+/* 一个方案是否可用：不占排除格、不占已排课程、自身不重叠 */
+function feasibleOptions(course, excluded, occupied) {
+  return course.options.filter(option => {
+    const cells = expandOption(option);
+    if (new Set(cells).size !== cells.length) return false;
+    return cells.every(k => !excluded.has(k) && !occupied.has(k));
+  });
+}
+
+function optionScore(option) {
+  const cells = expandOption(option);
+  const sumPeriods = cells.reduce((s, k) => s + Number(k.split("-")[1]), 0);
+  return cells.length * 100 + sumPeriods;  // 优先占格少、时段靠前，课表更紧凑
+}
+
+function runSchedule() {
+  if (!courses.length) {
+    setStatus("请先上传课程数据，或点击「载入示例数据」体验完整流程。", "error");
+    return;
+  }
+
+  const excluded = getExcludedKeys();
+  const occupied = new Map();   // cellKey -> { name, fixed }
+  const conflicts = [];
+
+  // 1. 固定时段必修课先占位
+  courses.filter(c => c.fixed).forEach(c => {
+    expandOption(c.options[0]).forEach(k => {
+      if (occupied.has(k)) conflicts.push(`${DAYS[+k.split("-")[0]]}第${k.split("-")[1]}节「${c.name}」与其他固定必修课重叠`);
+      else occupied.set(k, { name: c.name, fixed: true });
+    });
+  });
+  if (conflicts.length) {
+    setStatus("课程数据本身存在时间冲突：" + conflicts.join("；") + "。请先修改 CSV。", "error");
+    renderResult(occupied, new Map());
+    return;
+  }
+
+  // 2. 待安排：所有非固定必修课 + 用户勾选的选修课
+  const selected = selectedElectiveIds();
+  const pending = courses.filter(c => !c.fixed && (c.type === "required" || selected.has(c.id)));
+  const eleTotal = courses.filter(c => c.type === "elective").length;
+  const selectNote = document.getElementById("selectError");
+  selectNote.textContent = eleTotal > 0 && selected.size === 0 ? "提示：你未勾选任何选修课，本次仅安排必修课。" : "";
+
+  const assignment = new Map();  // course.id -> { option, cells }
+
+  // 3. 回溯搜索：每次挑可行方案最少的课程，逐个尝试
+  function dfs(remaining) {
+    if (!remaining.length) return true;
+    let best = null, bestOpts = null;
+    for (const c of remaining) {
+      const opts = feasibleOptions(c, excluded, occupied);
+      if (!opts.length) return false;
+      if (!bestOpts || opts.length < bestOpts.length) { best = c; bestOpts = opts; }
+    }
+    bestOpts.sort((a, b) => optionScore(a) - optionScore(b));
+    const rest = remaining.filter(c => c !== best);
+    for (const opt of bestOpts) {
+      const cells = expandOption(opt);
+      cells.forEach(k => occupied.set(k, { name: best.name, fixed: false }));
+      assignment.set(best.id, { option: opt, cells });
+      if (dfs(rest)) return true;
+      cells.forEach(k => occupied.delete(k));
+      assignment.delete(best.id);
+    }
+    return false;
+  }
+
+  const success = dfs(pending);
+  if (success) {
+    const chosen = pending.filter(c => c.options.length > 1).length;
+    setStatus(`排课成功！共安排 ${courses.filter(c => c.fixed).length + pending.length} 门课程，无时间冲突。${chosen ? `其中 ${chosen} 门课程由系统自动选择了不冲突的时段。` : ""}`, "success");
+    renderResult(occupied, assignment, "success");
+  } else {
+    // 找出在当前限制下完全无可用时段的课程，给出可操作的提示
+    const base = new Map();
+    courses.filter(c => c.fixed).forEach(c => expandOption(c.options[0])
+      .forEach(k => base.set(k, { name: c.name, fixed: true })));
+    const blocked = pending.filter(c => feasibleOptions(c, excluded, base).length === 0);
+    let msg = "无法生成无冲突课表。";
+    if (blocked.length) msg += `以下课程在当前限制下没有任何可用时段：${blocked.map(c => c.name).join("、")}。可尝试取消部分打叉限制或减少选修课。`;
+    else msg += "课程之间的可选时段互相冲突，可尝试少选几门选修课或放宽限制。";
+    setStatus(msg, "error");
+    renderResult(occupied, new Map());
+  }
+}
+
+/* ========== 排课结果渲染 ========== */
+function renderResult(occupied, assignment) {
+  const grid = document.getElementById("resultGrid");
+  buildScheduleTable(grid, { clickable: false });
+  const excluded = getExcludedKeys();
+
+  // 结果表里也标出被排除的格子
+  excluded.forEach(k => {
+    const [d, p] = k.split("-").map(Number);
+    const td = grid.querySelector(`td[data-day="${d}"][data-period="${p}"]`);
+    if (td && !occupied.has(k)) { td.classList.add("excluded-mark"); td.textContent = "✕"; }
+  });
+
+  const names = [...new Set([...occupied.values()].map(v => v.name))];
+  const colorMap = new Map(names.map((n, i) => [n, PALETTE[i % PALETTE.length]]));
+
+  occupied.forEach((v, k) => {
+    const [d, p] = k.split("-").map(Number);
+    const td = grid.querySelector(`td[data-day="${d}"][data-period="${p}"]`);
+    if (!td) return;
+    td.classList.add("filled");
+    if (v.fixed) td.classList.add("fixed-cell");
+    td.style.backgroundColor = colorMap.get(v.name);
+    td.textContent = v.name;
+    td.title = `${v.name} · ${DAYS[d]}第${p}节${v.fixed ? "（固定必修课）" : ""}`;
+  });
+
+  // 明细表
+  const rows = [];
+  courses.forEach(c => {
+    if (c.fixed) {
+      rows.push(`<tr><td>${escapeHtml(c.name)}</td><td>必修（固定）</td><td>${describeOption(c.options[0])}</td></tr>`);
+    } else if (assignment.has(c.id)) {
+      const a = assignment.get(c.id);
+      const extra = c.options.length > 1 ? `（从 ${c.options.length} 个候选中选择）` : "";
+      rows.push(`<tr><td>${escapeHtml(c.name)}</td><td>${c.type === "required" ? "必修" : "选修"}</td><td>${describeOption(a.option)}${extra}</td></tr>`);
+    }
+  });
+  document.getElementById("summary").innerHTML = rows.length
+    ? `<table><thead><tr><th>课程</th><th>类型</th><th>安排时段</th></tr></thead><tbody>${rows.join("")}</tbody></table>`
+    : '<p class="hint">当前课表为空。</p>';
+
+  // 图例
+  document.getElementById("legend").innerHTML = [...colorMap.entries()]
+    .map(([n, c]) => `<span class="legend-item"><span class="swatch" style="background:${c}"></span>${escapeHtml(n)}</span>`).join("")
+    + '<span class="legend-item"><span class="swatch" style="background:#fff;border:2px solid #1b5699"></span>固定必修课</span>'
+    + '<span class="legend-item"><span class="swatch" style="background:#f7f7f7"></span>✕ 已排除时段</span>';
+}
+
+/* ========== 初始化与事件绑定 ========== */
 document.addEventListener("DOMContentLoaded", () => {
   buildScheduleTable(document.getElementById("exclusionGrid"), { clickable: true });
-  buildScheduleTable(document.getElementById("resultGrid"),   { clickable: false });
+  buildScheduleTable(document.getElementById("resultGrid"), { clickable: false });
+  renderSelector();
+
+  document.querySelectorAll("[data-quick]").forEach(btn => {
+    btn.addEventListener("click", () => handleQuick(btn.dataset.quick));
+  });
+  document.getElementById("scheduleBtn").addEventListener("click", runSchedule);
+  document.getElementById("exampleBtn").addEventListener("click", () => loadCoursesFromCSV(SAMPLE_CSV, "示例数据"));
+  document.getElementById("fileInput").addEventListener("change", e => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+  document.getElementById("selectorWrap").addEventListener("change", () => {
+    document.getElementById("selectError").textContent = "";
+  });
+
+  setStatus("尚未载入课程数据。请上传 CSV，或点击「载入示例数据」体验完整流程。", "info");
 });
-	    </script>  
+</script>
 </body>
 </html>
